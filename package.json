@@ -1,0 +1,20 @@
+{
+  "name": "sql_express",
+  "version": "1.0.0",
+  "description": "Setting up sql and express",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9",
+    "sqlite3": "^5.1.7"
+  }
+}
