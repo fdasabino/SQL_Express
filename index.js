@@ -56,6 +56,19 @@ app.get("/usersfiltered", (req, res) => {
     res.json({ message: "Data fetched", data: rows, ok: true });
   });
 });
+app.get("/usersjoined", (req, res) => {
+  db.all(
+    `SELECT posts.title, posts.content, users.name FROM posts JOIN users ON posts.author_id = users.id;`,
+    (err, rows) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      console.log("Data fetched", rows);
+      res.json({ message: "Data fetched", data: rows, ok: true });
+    }
+  );
+});
 
 const PORT = 8000;
 app.listen(PORT, () => {
