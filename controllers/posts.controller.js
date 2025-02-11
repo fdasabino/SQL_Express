@@ -1,7 +1,7 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
-const dbpath = path.resolve(__dirname, "../../../sql/blog.db");
+const dbpath = path.resolve(__dirname, "../blog.db");
 const db = new sqlite3.Database(dbpath);
 
 const getAllPosts = (req, res) => {
