@@ -26,6 +26,7 @@ app.get("/posts", (req, res) => {
     res.json(rows);
   });
 });
+
 app.get("/users", (req, res) => {
   db.all("SELECT * FROM users ORDER BY name DESC", (err, rows) => {
     if (err) {
@@ -36,6 +37,7 @@ app.get("/users", (req, res) => {
     res.json(rows);
   });
 });
+
 app.get("/users/:id", (req, res) => {
   db.all(`SELECT name, email, id FROM users WHERE id = ${req.params.id}`, (err, rows) => {
     if (err) {
@@ -46,6 +48,7 @@ app.get("/users/:id", (req, res) => {
     res.json({ message: "Data fetched", data: rows, ok: true });
   });
 });
+
 app.get("/usersfiltered", (req, res) => {
   db.all(`SELECT * FROM users WHERE email LIKE "%@me.com%"`, (err, rows) => {
     if (err) {
@@ -56,6 +59,7 @@ app.get("/usersfiltered", (req, res) => {
     res.json({ message: "Data fetched", data: rows, ok: true });
   });
 });
+
 app.get("/usersjoined", (req, res) => {
   db.all(
     `SELECT posts.title, posts.content, users.name FROM posts JOIN users ON posts.author_id = users.id;`,
