@@ -1,30 +1,62 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const sql = require("../db");
 
 const dbpath = path.resolve(__dirname, "../blog.db");
 const db = new sqlite3.Database(dbpath);
 
-const getAllPosts = (req, res) => {
-  db.all("SELECT * FROM posts", (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    console.log("Data fetched", rows);
-    res.json(rows);
+const getAllPosts = async (req, res) => {
+  const posts = await sql`SELECT * FROM posts`;
+
+  if (!posts) {
+    res.status(404).json({ error: "Posts not found" });
+    return;
+  }
+
+  res.status(200).json({
+    message: "Posts fetched successfully",
+    data: posts,
   });
+
+  // db.all("SELECT * FROM posts", (err, rows) => {
+  //   if (err) {
+  //     res.status(500).json({ error: err.message });
+  //     return;
+  //   }
+  //   console.log("Data fetched", rows);
+  //   res.json(rows);
+  // });
 };
 
-const getPostById = (req, res) => {
-  // Add the db query to get a post by id
-  db.all(`SELECT * FROM posts WHERE id = ${req.params.postId}`, (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    console.log("Data fetched", rows);
-    res.json(rows);
+const getPostById = async (req, res) => {
+  const postId = req.params.postId;
+
+  if (!postId) {
+    res.status(400).json({ error: "Post id is required to find post by id" });
+    return;
+  }
+
+  const post = await sql`SELECT * FROM posts WHERE id = ${postId}`;
+
+  if (!post) {
+    res.status(404).json({ error: "Post not found" });
+    return;
+  }
+
+  res.status(200).json({
+    message: "Post fetched successfully",
+    data: post,
   });
+
+  // Add the db query to get a post by id
+  // db.all(`SELECT * FROM posts WHERE id = ${req.params.postId}`, (err, rows) => {
+  //   if (err) {
+  //     res.status(500).json({ error: err.message });
+  //     return;
+  //   }
+  //   console.log("Data fetched", rows);
+  //   res.json(rows);
+  // });
   // use req.params.id to get the post id
   // response with the post
 };
