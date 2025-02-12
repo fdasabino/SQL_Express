@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 // > routes
 const postsRoutes = require("./routes/posts.routes");
-const usersRoutes = require("./routes/users.routes");
+// const usersRoutes = require("./routes/users.routes");
 
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", usersRoutes);
