@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 
 // > routes
 const postsRoutes = require("./routes/posts.routes");
-// const usersRoutes = require("./routes/users.routes");
+const usersRoutes = require("./routes/users.routes");
 
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", usersRoutes);
@@ -25,3 +25,5 @@ const PORT = 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+require("./migration")();

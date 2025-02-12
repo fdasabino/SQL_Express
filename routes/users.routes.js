@@ -5,6 +5,7 @@ const {
   getUserById,
   getFilteredUsers,
   getUsersJoined,
+  createUser,
 } = require("../controllers/users.controller");
 
 // * GET /api/users
@@ -18,5 +19,8 @@ router.get("/joined", getUsersJoined);
 
 // * GET /api/users/:userId
 router.get("/:userId", getUserById);
+
+// * POST /api/users
+router.post("/", createUser);
 
 module.exports = router;

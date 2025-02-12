@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPosts, getPostById } = require("../controllers/posts.controller");
+const { getAllPosts, getPostById, createPost } = require("../controllers/posts.controller");
 
 // * GET /api/posts
 router.get("/", getAllPosts);
@@ -9,7 +9,7 @@ router.get("/", getAllPosts);
 router.get("/:postId", getPostById);
 
 // // * POST /api/posts
-// router.post("/", createPost);
+router.post("/", createPost);
 
 // // * DELETE /api/posts/:postId
 // router.delete("/:postId", deletePost);

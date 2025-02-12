@@ -1,125 +1,135 @@
 const sql = require("../db");
 
 const getAllPosts = async (req, res) => {
-  const posts = await sql`SELECT * FROM posts`;
+  try {
+    const posts = await sql`SELECT * FROM posts`;
 
-  if (!posts) {
-    res.status(404).json({ error: "Posts not found" });
-    return;
+    if (posts.length === 0) {
+      res.status(404).json({ error: "No posts found" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Posts fetched successfully",
+      data: posts,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch posts", details: error.message });
   }
-
-  res.status(200).json({
-    message: "Posts fetched successfully",
-    data: posts,
-  });
 };
 
 const getPostById = async (req, res) => {
-  const postId = req.params.postId;
+  try {
+    const postId = req.params.postId;
 
-  if (!postId) {
-    res.status(400).json({ error: "Post id is required to find post by id" });
-    return;
+    if (!postId) {
+      res.status(400).json({ error: "Post ID is required" });
+      return;
+    }
+
+    const post = await sql`SELECT * FROM posts WHERE id = ${postId}`;
+
+    if (post.length === 0) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Post fetched successfully",
+      data: post[0], // Assuming you want to return a single post object
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch the post", details: error.message });
   }
-
-  const post = await sql`SELECT * FROM posts WHERE id = ${postId}`;
-
-  if (!post) {
-    res.status(404).json({ error: "Post not found" });
-    return;
-  }
-
-  res.status(200).json({
-    message: "Post fetched successfully",
-    data: post,
-  });
-
-  // Add the db query to get a post by id
-  // db.all(`SELECT * FROM posts WHERE id = ${req.params.postId}`, (err, rows) => {
-  //   if (err) {
-  //     res.status(500).json({ error: err.message });
-  //     return;
-  //   }
-  //   console.log("Data fetched", rows);
-  //   res.json(rows);
-  // });
-  // use req.params.id to get the post id
-  // response with the post
 };
 
-// const createPost = (req, res) => {
-//   // use req.body to get the post data
-//   const { title, content, author_id } = req.body;
-//   console.log("Post data", title, content, author_id);
+const createPost = async (req, res) => {
+  try {
+    const { title, content, author_id } = req.body;
 
-//   const query = `INSERT INTO posts (title, content, author_id) VALUES ('${title}', '${content}', ${author_id})`;
+    if (!title || !content || !author_id) {
+      res.status(400).json({ error: "Title, content, and author ID are required" });
+      return;
+    }
 
-//   // Add the db query to insert a new post
-//   db.run(query, (err, rows) => {
-//     if (err) {
-//       res.status(500).json({ error: err.message });
-//       return;
-//     }
+    const query = await sql`
+      INSERT INTO posts (title, content, author_id) 
+      VALUES (${title}, ${content}, ${author_id}) 
+      RETURNING *`;
 
-//     // validation
-//     if (!title || !content || !author_id) {
-//       res.status(400).json({ error: "Title, content and author_id are required" });
-//       return;
-//     }
+    res.status(201).json({
+      message: "Post created successfully",
+      data: query[0], // Return the newly created post
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create post", details: error.message });
+  }
+};
 
-//     // response with the new post
-//     res.status(201).json({
-//       post: {
-//         title,
-//         content,
-//         author_id,
-//       },
-//       message: "Post created successfully",
-//     });
-//   });
-// };
+const deletePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
 
-// const deletePost = (req, res) => {
-//   // Add the db query to delete a post
-//   db.all(`DELETE FROM posts WHERE id = ${req.params.postId}`, (err, rows) => {
-//     if (err) {
-//       res.status(500).json({ error: err.message });
-//       return;
-//     }
-//     res.status(200).json({
-//       message: "Post successfully deleted",
-//       rows,
-//     });
-//   });
-//   // use req.params.id to get the post id
-//   // response with the deleted post
-// };
+    if (!postId) {
+      res.status(400).json({ error: "Post ID is required" });
+      return;
+    }
 
-// const updatePost = (req, res) => {
-//   console.log(req.body);
-//   // Add the db query to update a post
-//   db.all(
-//     `UPDATE posts SET title = '${req.body.title}', content = '${req.body.content}' WHERE id = ${req.params.postId}`,
-//     (err, rows) => {
-//       if (err) {
-//         res.status(500).json({ error: err.message });
-//         return;
-//       }
-//       res.status(200).json({
-//         messsage: "post successfully updated",
-//         rows,
-//       });
-//     }
-//   );
-//   // use req.params.postId to get the post id
-//   // use req.body to get the post data
-//   // response with the updated post
-// };
+    const result = await sql`DELETE FROM posts WHERE id = ${postId} RETURNING *`;
+
+    if (result.length === 0) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Post deleted successfully",
+      data: result[0], // Return the deleted post
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete post", details: error.message });
+  }
+};
+
+const updatePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const { title, content } = req.body;
+
+    if (!postId) {
+      res.status(400).json({ error: "Post ID is required" });
+      return;
+    }
+
+    if (!title || !content) {
+      res.status(400).json({ error: "Title and content are required to update the post" });
+      return;
+    }
+
+    const updatedPost = await sql`
+      UPDATE posts 
+      SET title = ${title}, content = ${content} 
+      WHERE id = ${postId} 
+      RETURNING *`;
+
+    if (updatedPost.length === 0) {
+      res.status(404).json({ error: "Post not found" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Post updated successfully",
+      data: updatedPost[0], // Return the updated post
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update post", details: error.message });
+  }
+};
 
 module.exports = {
   getAllPosts,
   getPostById,
-  // createPost,
-  // deletePost,
-  // updatePost,
+  createPost,
+  deletePost,
+  updatePost,
 };
